@@ -1,159 +1,128 @@
 <?php
-// Initialize variables
-$insert = false;
-$servername = "localhost";
+$server = "localhost";
 $username = "root";
 $password = "";
-$dbname = "chitransh industries";
+$dbname = "chitransh industries"; 
+$insert = false;
 
-// Create connection
-$con = new mysqli($servername, $username, $password, $dbname);
+$con = new mysqli($server, $username, $password, $dbname);
 
-// Check connection
 if ($con->connect_error) {
     die("Connection failed: " . $con->connect_error);
 }
 
-// Process the form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Validate and sanitize input
-    $name = trim($_POST['name']);
-    $age = trim($_POST['age']);
-    $phone = trim($_POST['phone']);
-    $email = trim($_POST['mail']);
-    $desc = trim($_POST['desc']);
+    
+    $name = $con->real_escape_string($_POST['name']);
+    $age = $con->real_escape_string($_POST['age']);
+    $phone = $con->real_escape_string($_POST['phone']);
+    $email = $con->real_escape_string($_POST['mail']);
+    $desc = $con->real_escape_string($_POST['desc']);
 
-    // Prepare and bind
-    $stmt = $con->prepare("INSERT INTO `form` (NAME, AGE, PHONE, EMAIL, DESCRIPTION, DT) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP())");
-    $stmt->bind_param("sssss", $name, $age, $phone, $email, $desc);
+    $sql = "INSERT INTO `form` (NAME, AGE, PHONE, EMAIL, DESCRIPTION, DT) 
+            VALUES ('$name', '$age', '$phone', '$email', '$desc', CURRENT_TIMESTAMP())";
 
-    // Execute the statement
-    if ($stmt->execute()) {
+    if ($con->query($sql) === TRUE) {
+        echo "New record created successfully";
         $insert = true;
     } else {
-        echo "Error: " . $stmt->error;
+        echo "Error: " . $con->error;
     }
-
-    // Close the statement
-    $stmt->close();
 }
 
-// Close the connection
 $con->close();
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
+
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <title>Welcome to Chitransh Industries</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Roboto', sans-serif;
-        }
+    <style>*{
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    
+}
+table{
+    padding: auto;
+}
 
-        body {
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
 
-        .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            width: 100%;
-        }
 
-        h1, h2 {
-            text-align: center;
-            color: #333;
-        }
+.container h1,h2,div{
+    max-width: 80%;
+    background-color: rgb(198, 152 , 241);
+    padding: 10px;
+    margin: auto;
+    align-content: center;
+    
+}
 
-        p {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+input,textarea{
+    border: 1px solid black;
+    width: 100%;
+    font-size: 14px;
+}
 
-        input, textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 14px;
-        }
+label{
+    font-size: 14px;
+}
+.btn{
+    font-size: 14px;
+    color: white;
+    background: purple;
+    padding: 15px,10px;
+    cursor: pointer;
+    border-radius: 0.6px;
+}
 
-        input:focus, textarea:focus {
-            border-color: #007bff;
-            outline: none;
-        }
-
-        label {
-            font-size: 14px;
-            color: #555;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-
-        .btn:hover {
-            background-color: #0056b3;
-        }
-
-        .result {
-            text-align: center;
-            color: green;
-            margin-top: 10px;
-        }
-    </style>
+</style>
 </head>
 <body>
     <div class="container">
-        <h1>Welcome!!</h1>
-        <h2>From Chitransh Industries</h2>
-        <p>Fill this form to be a part of our family</p>
+        <center>
+            <h1>Welcome!!</h1>
+            <h2>From Chitransh Industries</h2>
+            <p>Fill this form to be a part of our family</p><br>
+        <?php 
+         if($insert==true){
+            echo "<p> Thanks for Submitting your form </p>";
+         }
+        ?> 
 
-        <?php if ($insert): ?>
-            <div class="result">Thanks for submitting your form!</div>
-        <?php endif; ?>
+        </center>
 
-        <form method="post" action="">
-            <label for="name">Name:</label>
-            <input type="text" name="name" id="name" placeholder="Enter your Name" required />
-
-            <label for="age">Age:</label>
-            <input type="text" name="age" id="age" placeholder="Enter your Age:" required />
-
-            <label for="phone">Phone:</label>
-            <input type="text" name="phone" id="phone" placeholder="Enter your Phone number:" required />
-
-            <label for="mail">Email:</label>
-            <input type="email" name="mail" id="mail" placeholder="abc123@gmail.com" required />
-
-            <label for="desc">Your Description:</label>
-            <textarea name="desc" id="desc" rows="5" required></textarea>
-
-            <button type="submit" class="btn">Submit</button>
-        </form>
+        <center>
+            <form method="post" action="index_14.php">
+                <table width="30%" height="300">
+                    <tr>
+                        <td><label for="name">Name:</label></td>
+                        <td><input type="text" name="name" id="name" placeholder="Enter your Name" required /></td>
+                    </tr>
+                    <tr>
+                        <td><label for="age">Age:</label></td>
+                        <td><input type="text" name="age" id="age" placeholder="Enter the Age:" required /></td>
+                    </tr>
+                    <tr>
+                        <td><label for="phone">Phone:</label></td>
+                        <td><input type="phone" name="phone" id="phone" placeholder="Enter the Phone number:" required /></td>
+                    </tr>
+                    <tr>
+                        <td><label for="mail">Email:</label></td>
+                        <td><input type="email" name="mail" id="mail" placeholder="abc123@gmail.com" required /></td>
+                    </tr>
+                    <tr>
+                        <td><label for="desc">Your Description:</label></td>
+                        <td><textarea name="desc" id="desc" rows="5" cols="15" required></textarea></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" align="center"><button type="submit" class="btn">Submit</button></td>
+                    </tr>
+                </table>
+            </form>
+        </center>
     </div>
 </body>
 </html>
